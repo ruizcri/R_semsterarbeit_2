@@ -1,0 +1,272 @@
+---
+title: "Semesterarbeit 2"
+author: "Cristian Ruiz"
+date: "2023-10-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Aufgabe 1
+
+#### Erstellung Tabelle
+
+Gegebene Würfelergebnisse
+
+```{r}
+wurf <- c(6, 1, 1, 3, 3, 3, 2, 3, 6, 4, 4, 1, 4, 4, 2, 5, 2, 2, 6, 4, 2, 6, 4, 1, 6, 6, 4, 4, 1, 3, 6, 6, 4, 5, 4, 4, 6, 1, 4, 4, 1, 6, 4, 4, 6, 3, 3, 4, 4, 1)
+```
+
+Anzahl der Würfe
+
+```{r}
+anzahl_wuerfe <- length(wurf)
+```
+
+Erwartete kumulierte absolute Häufigkeit einer Sechs
+
+```{r}
+erwartete_abs_haeufigkeit <- cumsum(rep(1/6, anzahl_wuerfe))
+```
+
+Erwartete kumulierte relative Häufigkeit einer Sechs
+
+```{r}
+erwartete_rel_haeufigkeit <- erwartete_abs_haeufigkeit / seq_len(anzahl_wuerfe)
+```
+
+Beobachtete kumulierte absolute Häufigkeit einer Sechs
+
+```{r}
+beobachtete_abs_haeufigkeit <- cumsum(wurf == 6)
+```
+
+Beobachtete kumulierte relative Häufigkeit einer Sechs
+
+```{r}
+beobachtete_rel_haeufigkeit <- beobachtete_abs_haeufigkeit / seq_len(anzahl_wuerfe)
+```
+
+Differenz zwischen beobachteter und erwarteter kumulierter absoluter Häufigkeit
+
+```{r}
+differenz_abs_haeufigkeit <- beobachtete_abs_haeufigkeit - erwartete_abs_haeufigkeit
+```
+
+Differenz zwischen beobachteter und erwarteter kumulierter relativer Häufigkeit
+
+```{r}
+differenz_rel_haeufigkeit <- beobachtete_rel_haeufigkeit - erwartete_rel_haeufigkeit
+```
+
+Erstellung dataframe / Tabelle
+
+```{r}
+tabelle <- data.frame(
+  Wurf = seq_len(anzahl_wuerfe),
+  Wurfzahl = wurf,
+  Beob_Kum_Abs_H = beobachtete_abs_haeufigkeit,
+  Erw_Kum_Abs_H = erwartete_abs_haeufigkeit,
+  Diff_Kum_Abs_H = differenz_abs_haeufigkeit,
+  Beob_Kum_Rel_H = beobachtete_rel_haeufigkeit,
+  Erw_Kum_Rel_H = erwartete_rel_haeufigkeit,
+  Diff_Kum_Rel_H = differenz_rel_haeufigkeit
+)
+```
+
+Ausgabe der Ergebnisse
+
+```{r}
+View(tabelle)
+```
+
+#### Erstellung Diagramme
+
+```{r}
+library(ggplot2)
+```
+
+Erstellung des Diagramms zur Differenz der kumulierten absoluten Häufigkeit einer Sechs
+
+```{r}
+abs_diff_plot <- ggplot(tabelle, aes(x = Wurf, y = Diff_Kum_Abs_H)) +
+  geom_point() +
+  labs(x = "Anzahl Würfe", y = "Differenz der kumulierten absoluten Häufigkeit") +
+  ggtitle("Differenz der kumulierten absoluten Häufigkeit einer Sechs vs. Anzahl Würfe")
+
+print(abs_diff_plot)
+```
+
+Erstellung des Diagramms zur Differenz der kumulierten relativen Häufigkeit einer Sechs
+
+```{r}
+rel_diff_plot <- ggplot(tabelle, aes(x = Wurf, y = Diff_Kum_Rel_H)) +
+  geom_point() +
+  labs(x = "Anzahl Würfe", y = "Differenz der kumulierten relativen Häufigkeit") +
+  ggtitle("Differenz der kumulierten relativen Häufigkeit einer Sechs vs. Anzahl Würfe")
+
+print(rel_diff_plot)
+```
+
+Beobachtungen:
+
+1. Bei dem Diagramm für die Differenz der kumulierten absoluten Häufigkeiten (abs_diff_plot) ist zu erkennen, dass die Abweichungen von Null relativ gross sind. Dies bedeutet, dass die tatsächlichen absoluten Häufigkeiten einer Sechs nach jedem Wurf nicht stabil gegen den erwarteten Wert konvergieren. Dies liegt wahrscheinlich daran, dass 50 Würfe eine zu geringe Anzahl sind, um das Gesetz der grossen Zahlen effektiv zu demonstrieren.
+
+2. Das Diagramm für die Differenz der kumulierten relativen Häufigkeiten (rel_diff_plot) zeigt ähnliche Schwankungen, jedoch in relativen Häufigkeiten. Auch hier konvergieren die beobachteten Werte nicht stabil gegen den erwarteten Wert.
+
+Interpretation:
+
+Die Abweichungen in den Diagrammen deuten darauf hin, dass das Gesetz der grossen Zahlen mit nur 50 Würfen nicht effektiv nachgewiesen werden kann. Das Gesetz der grossen Zahlen besagt, dass mit zunehmender Anzahl von Versuchen die relative Häufigkeit eines Ereignisses dazu tendiert, sich dem theoretischen Wahrscheinlichkeitswert anzunähern. In diesem Fall zeigen die Diagramme, dass die Abweichungen von diesem theoretischen Wert bei nur 50 Würfen erheblich sind.
+
+Um das Gesetz der grossen Zahlen effektiver zu demonstrieren und genauere Schlussfolgerungen zu ziehen, wäre eine grössere Anzahl von Versuchen erforderlich. Die beobachteten Schwankungen in den Diagrammen können durch die begrenzte Anzahl von Würfen und die Zufälligkeit des Wurfergebnisses erklärt werden. Die Unterschiede zwischen den beobachteten und erwarteten Häufigkeiten können durch Stichprobenvariationen verursacht werden, die bei einer begrenzten Anzahl von Versuchen auftreten.
+
+## Aufgabe 2
+
+Laden des Datensatzes "ChickWeight"
+
+```{r}
+data("ChickWeight")
+```
+
+Betrachten der ersten Zeilen des Datensatzes
+
+```{r}
+head(ChickWeight)
+```
+
+
+Erstellen der ausschliessenden Ereignisse A und A¯ sowie B und B¯. In diesem Beispiel verwende ich die Spalten "Diet" und "Time". Die ausschliessenden Ereignisse sind folgende:
+
+A: Küken erhalten Diät 1
+A¯: Küken erhalten Diät 2, 3 oder 4
+B: Zeitpunkt 10
+B¯: Zeitpunkt 20, 30 oder 40
+
+Als nächstes wird der P(A|B) nach dem Satz von Bayes berechnet. Die Formel lautet P(A|B) = P(A) * P(B|A) / P(B).
+
+P(A) --> Anteil der Küken, die Diät 1 erhalten
+
+```{r}
+P_A <- nrow(ChickWeight[ChickWeight$Diet == 1, ]) / nrow(ChickWeight)
+```
+
+P(B) --> Anteil der Küken zum Zeitpunkt 10
+
+```{r}
+P_B <- nrow(ChickWeight[ChickWeight$Time == 10, ]) / nrow(ChickWeight)
+```
+
+P(B|A) --> Anteil der Küken, die Diät 1 erhalten, zum Zeitpunkt 10
+
+```{r}
+P_B_gegeben_A <- nrow(ChickWeight[ChickWeight$Diet == 1 & ChickWeight$Time == 10, ]) / nrow(ChickWeight[ChickWeight$Diet == 1, ])
+```
+
+P(A|B) --> nach dem Satz von Bayes
+
+```{r}
+P_A_gegeben_B <- P_A * P_B_gegeben_A / P_B
+```
+
+P(A|B) --> mit dem tatsächlichen Anteil der Küken im Datensatz vergeleichen
+
+```{r}
+P_A_gegeben_B_in_data <- nrow(ChickWeight[ChickWeight$Diet == 1 & ChickWeight$Time == 10, ]) / nrow(ChickWeight[ChickWeight$Time == 10, ])
+
+```
+
+Berechnete und tatsächliche Werte
+
+```{r}
+print(P_A_gegeben_B)
+print(P_A_gegeben_B_in_data)
+```
+
+## Aufgabe 3
+
+
+Für diesen Teil der Arbeit nehme ich jeweils die Spezifikationen eines Antigentests von Roche und eines PCR Tests von ID NOW Performance.
+
+### 3.1
+
+Antigentest Roche:
+Sensitivität = 96.52%
+Spezifität = 99,68%
+
+PCR-Test ID NOW Performance:
+Senitivität = 94.7%
+Spezifität = 98,6%
+
+Die Quelle für diese Angaben finden sie hier: https://www.roche.de/patienten-betroffene/informationen-zu-krankheiten/covid-19
+https://www.abbott.com/corpnewsroom/diagnostics-testing/ID-NOW-performance-from-researchers-in-the-field.html
+
+Definieren der Values Sensitivität, Spezifität und Prävalenz.
+
+```{r}
+sensitivitaet_antigentest <- 0.9652
+spezifitaet_antigentest <- 0.9968
+sensitivitaet_pcr <- 0.947
+spezifitaet_pcr <- 0.986
+praevalenz <- 0.02
+```
+
+
+### 3.2
+
+*i)* Berechnung der Wahrscheinlichkeit (mit Satz von Bayes), dass eine Person Covid-19 hat, wenn das Antigentest-Ergebnis positiv ist.
+
+```{r}
+p_d_t_positiv_antigentest <- (sensitivitaet_antigentest * praevalenz) / ((sensitivitaet_antigentest * praevalenz) + ((1 - spezifitaet_antigentest) * (1 - praevalenz)))
+
+print(p_d_t_positiv_antigentest)
+```
+
+Die Wahrscheinlichkeit, dass eine Person tatsächlich Covid-19 hat, wenn das Antigentest-Ergebnis positiv ist, beträgt also etwa 86,02%. Also statistisch deutlich tiefer also man denken würde, wenn man sich den Sensitivitätswert anschaut.
+
+*ii)* Berechnung der Wahrscheinlichkeit (mit Satz von Bayes), dass eine Person Covid-19 nicht hat, wenn das Antigentest-Ergebnis negativ ist.
+
+```{r}
+p_d_t_negativ_antigentest <- (1 - sensitivitaet_antigentest) * praevalenz + spezifitaet_antigentest * spezifitaet_antigentest
+
+p_d_t_negativ_antigentest
+
+
+```
+
+Die Wahrscheinlichkeit, dass eine Person Covid-19 nicht hat, wenn das Antigentest-Ergebnis negativ ist, beträgt etwa 99,4%. Der Wert ist hier deutlich höher als im vorherigen Beispiel. Es kann also gesagt werden, dass in diesm Fall auch statistisch gesehen von einer hohen Genauigkeit ausgegangen werden kann.
+
+### 3.3
+
+Berechnung der Wahrscheinlichkeit, dass eine Speichelprobe tatsächlich Covid-19-positiv ist, wenn sowohl Antigentest als auch PCR-Test positiv sind. 
+
+```{r}
+p_d_t_positiv_antigentest_und_pcr <- (sensitivitaet_antigentest * sensitivitaet_pcr * praevalenz) / ((sensitivitaet_antigentest * sensitivitaet_pcr * praevalenz) + ((1 - spezifitaet_antigentest) * (1 - spezifitaet_pcr) * (1 - praevalenz)))
+
+p_d_t_positiv_antigentest_und_pcr
+
+```
+
+Die Wahrscheinlichkeit, dass eine Speichelprobe tatsächlich Covid-19-positiv ist, wenn sowohl der Antigentest als auch der PCR-Test positiv sind, beträgt etwa 0.99%. Die Wahrscheinlichkeit steigt also deutlich beim zweifachen Testen.
+
+## Aufgabe 4
+
+Plot von P(D|T) in Abhängigkeit von P(D)
+
+```{r}
+praevalenz_bereich <- seq(0, 0.5, by = 0.01)
+wahrscheinlichkeit_d_gegeben_t <- (sensitivitaet_antigentest * praevalenz_bereich) / ((sensitivitaet_antigentest * praevalenz_bereich) + ((1 - spezifitaet_antigentest) * (1 - praevalenz_bereich)))
+
+daten <- data.frame(Prävalenz = praevalenz_bereich, Wahrscheinlichkeit = wahrscheinlichkeit_d_gegeben_t)
+
+ggplot(daten, aes(x = Prävalenz, y = Wahrscheinlichkeit)) +
+  geom_line() +
+  labs(x = "Prävalenz (P(D))", y = "P(D|T) bei positivem Antigentest") +
+  theme_minimal()
+
+```
+
+In dem Plot von P(D|T) in Abhängigkeit von P(D) sehen wir, dass die Wahrscheinlichkeit, dass eine Person tatsächlich Covid-19 hat, wenn das Testergebnis positiv ist, stark von der Prävalenz abhängt. Bei niedriger Prävalenz ist die Wahrscheinlichkeit niedriger, während sie bei höherer Prävalenz steigt. Dies zeigt, wie wichtig die Prävalenz bei der Interpretation von Testergebnissen ist. Bei niedriger Prävalenz gibt es mehr falsch positive Ergebnisse, selbst wenn die Tests eine hohe Spezifität aufweisen.
+
+
